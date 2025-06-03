@@ -1,0 +1,40 @@
+"""
+suspend_secure.py
+
+Author: Guy Alvizu
+GitHub: https://github.com/guyalvizu
+
+Description:
+  A Python script to help Google Workspace admins secure user accounts.
+  Signs out the user and forces a password change using GAM.
+"""
+
+import subprocess
+from datetime import datetime
+
+# Optional: Customize path to GAM binary if needed
+GAM_PATH = "gam"  # Or use absolute path like "/usr/local/bin/gam"
+
+def print_with_time(message):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{timestamp}] {message}")
+
+def run_gam_command(description, command):
+    print_with_time(f"{description}...")
+    result = subprocess.run(command, capture_output=True, text=True)
+    if result.returncode == 0:
+        print_with_time(f"{description} completed.")
+    else:
+        print_with_time(f"ERROR during {description}: {result.stderr.strip()}")
+
+def main():
+    user_email = input("Enter user email address: ").strip()
+    print_with_time(f"Processing user: {user_email}")
+
+    run_gam_command("Signing user out of all sessions", [GAM_PATH, "user", user_email, "signout"])
+    run_gam_command("Forcing password change on next login", [GAM_PATH, "update", "user", user_email, "changepassword", "on"])
+
+if __name__ == "__main__":
+    main()
+
+# Created by Guy Alvizu (@guy_alvizu) — GitHub.com/guyalvizu
